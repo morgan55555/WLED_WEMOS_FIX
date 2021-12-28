@@ -447,8 +447,15 @@ void WLED::initAP(bool resetAP)
     strcpy_P(apPass, PSTR(DEFAULT_AP_PASS));
   DEBUG_PRINT(F("Opening access point "));
   DEBUG_PRINTLN(apSSID);
+  WiFi.disconnect();
+  WiFi.softAPdisconnect();
+
+  delay(3000);
+
   WiFi.softAPConfig(IPAddress(4, 3, 2, 1), IPAddress(4, 3, 2, 1), IPAddress(255, 255, 255, 0));
   WiFi.softAP(apSSID, apPass, apChannel, apHide);
+
+  delay(5000);
 
   if (!apActive) // start captive portal if AP active
   {
@@ -606,6 +613,7 @@ void WLED::initConnection()
 #endif
 
   WiFi.begin(clientSSID, clientPass);
+  WiFi.waitForConnectResult();
 
 #ifdef ARDUINO_ARCH_ESP32
   WiFi.setSleep(!noWifiSleep);
@@ -701,7 +709,7 @@ void WLED::handleConnection()
   byte stac = 0;
   if (apActive) {
 #ifdef ESP8266
-    stac = wifi_softap_get_station_num();
+    stac = WiFi.softAPgetStationNum();
 #else
     wifi_sta_list_t stationList;
     esp_wifi_ap_get_sta_list(&stationList);
@@ -727,6 +735,9 @@ void WLED::handleConnection()
     wasConnected = false;
     return;
   }
+
+  delay(10);
+
   if (!Network.isConnected()) {
     if (interfacesInited) {
       DEBUG_PRINTLN(F("Disconnected!"));
