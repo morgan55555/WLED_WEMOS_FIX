@@ -736,7 +736,7 @@ void WLED::handleConnection()
     return;
   }
 
-  delay(10);
+  delay(20);
 
   if (!Network.isConnected()) {
     if (interfacesInited) {
